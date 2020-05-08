@@ -13,6 +13,7 @@
 //! methods.
 
 use crate::future::poll_fn;
+use crate::net::addr::ToSocketAddrs;
 use crate::net::udp::UdpSocket;
 
 use std::error::Error;
@@ -132,6 +133,14 @@ impl SendHalf {
     /// [`connect`]: super::UdpSocket::connect
     pub async fn send(&mut self, buf: &[u8]) -> io::Result<usize> {
         poll_fn(|cx| self.0.poll_send(cx, buf)).await
+    }
+
+    pub fn try_send(&self, buf: &[u8]) -> io::Result<usize> {
+        self.0.try_send(buf)
+    }
+
+    pub async fn try_send_to<A: ToSocketAddrs>(&self, buf: &[u8], target: A) -> io::Result<usize> {
+        self.0.try_send_to(buf, target).await
     }
 }
 
